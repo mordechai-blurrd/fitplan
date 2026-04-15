@@ -1,0 +1,15 @@
+{
+  "name": "FitPlan — Mordechai",
+  "short_name": "FitPlan",
+  "description": "Personal 12-week progressive fitness tracker",
+  "start_url": "./fitplan.html",
+  "display": "standalone",
+  "background_color": "#F4F7F6",
+  "theme_color": "#006A6A",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["health", "fitness", "lifestyle"]
+}
