@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitPlan — Mordechai</title>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" id="theme-meta" content="#006A6A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="FitPlan">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <style>
+    /* ══════════════════════════════════════════
+       MD3 TOKENS — LIGHT + DARK
+    ══════════════════════════════════════════ */
+    :root, [data-theme="light"] {
+      --primary: #006A6A;        --on-primary: #FFFFFF;
+      --primary-container: #9CF1F0; --on-primary-container: #002020;
+      --secondary: #4A6363;      --on-secondary: #FFFFFF;
+      --secondary-container: #CCE8E7; --on-secondary-container: #051F1F;
+      --tertiary: #4A607A;       --on-tertiary: #FFFFFF;
+      --tertiary-container: #D2E4FF;  --on-tertiary-container: #021C32;
+      --error: #BA1A1A;          --error-container: #FFDAD6;
+      --bg: #F4F7F6;             --on-bg: #191C1C;
+      --surface: #F4F7F6;        --on-surface: #191C1C;
+      --surface-variant: #DAE5E4; --on-sv: #3F4948;
+      --outline: #6F7979;        --outline-variant: #BEC9C8;
+      --sc-highest: #E0E3E2;     --sc-high: #E6E9E8;
+      --sc: #EBF0EE;             --sc-low: #F1F4F3;
+      --sc-lowest: #FFFFFF;
+      --success: #146B2E;        --success-container: #B7F3BE;
+      --warning: #6B4F00;        --warning-container: #FFDF99;
+      --shadow: rgba(0,0,0,.14);
+      --overlay: rgba(0,0,0,.04);
+      --r-xs:4px; --r-s:8px; --r-m:12px; --r-l:16px; --r-xl:28px; --r-full:9999px;
+      --el1: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+      --el3: 0 4px 8px 3px rgba(0,0,0,.15), 0 1px 3px rgba(0,0,0,.3);
+    }
+    [data-theme="dark"] {
+      --primary: #4DD8D8;        --on-primary: #003737;
+      --primary-container: #004F4F; --on-primary-container: #9CF1F0;
+      --secondary: #B0CCCC;      --on-secondary: #1B3535;
+      --secondary-container: #324B4B; --on-secondary-container: #CCE8E7;
+      --tertiary: #AFC7E4;       --on-tertiary: #193249;
+      --tertiary-container: #304861; --on-tertiary-container: #D2E4FF;
+      --error: #FFB4AB;          --error-container: #93000A;
+      --bg: #0F1414;             --on-bg: #E0E3E2;
+      --surface: #0F1414;        --on-surface: #E0E3E2;
+      --surface-variant: #3F4948; --on-sv: #BEC9C8;
+      --outline: #899392;        --outline-variant: #3F4948;
+      --sc-highest: #2E3332;     --sc-high: #252B2B;
+      --sc: #1E2424;             --sc-low: #191F1F;
+      --sc-lowest: #131919;
+      --success: #8AD598;        --success-container: #004917;
+      --warning: #F0BD48;        --warning-container: #3B2E00;
+      --shadow: rgba(0,0,0,.4);
+      --overlay: rgba(255,255,255,.06);
+    }
+
+    /* ══════════════════════════════════════════
+       BASE
+    ══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Roboto', system-ui, sans-serif;
+      background: var(--bg); color: var(--on-surface);
+      min-height: 100vh; max-width: 480px; margin: 0 auto; overflow-x: hidden;
+      transition: background .25s, color .25s;
+    }
+
+    /* ══════════════════════════════════════════
+       TYPOGRAPHY
+    ══════════════════════════════════════════ */
+    .hl-sm  { font-size:24px; line-height:32px; font-weight:400; }
+    .tl-lg  { font-size:22px; line-height:28px; font-weight:500; }
+    .tl-md  { font-size:16px; line-height:24px; font-weight:500; letter-spacing:.15px; }
+    .tl-sm  { font-size:14px; line-height:20px; font-weight:500; letter-spacing:.1px; }
+    .bd-lg  { font-size:16px; line-height:24px; font-weight:400; letter-spacing:.5px; }
+    .bd-md  { font-size:14px; line-height:20px; font-weight:400; letter-spacing:.25px; }
+    .bd-sm  { font-size:12px; line-height:16px; font-weight:400; letter-spacing:.4px; }
+    .lbl-lg { font-size:14px; line-height:20px; font-weight:500; letter-spacing:.1px; }
+    .lbl-md { font-size:12px; line-height:16px; font-weight:500; letter-spacing:.5px; }
+    .lbl-sm { font-size:11px; line-height:16px; font-weight:500; letter-spacing:.5px; }
+
+    /* ══════════════════════════════════════════
+       BOTTOM NAV
+    ══════════════════════════════════════════ */
+    .nav-bar {
+      position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+      width:100%; max-width:480px;
+      background:var(--sc); display:flex; align-items:center;
+      justify-content:space-around; padding:12px 0 18px;
+      z-index:200; border-top:1px solid var(--outline-variant);
+    }
+    .nav-item { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; flex:1; user-select:none; }
+    .nav-ind  { padding:4px 20px; border-radius:var(--r-full); display:flex; align-items:center; justify-content:center; transition:background .2s; }
+    .nav-item.active .nav-ind { background:var(--secondary-container); }
+    .nav-item .material-icons-round { font-size:24px; color:var(--on-sv); transition:color .2s; }
+    .nav-item.active .material-icons-round { color:var(--on-secondary-container); }
+    .nav-lbl { font-size:12px; font-weight:500; color:var(--on-sv); letter-spacing:.5px; }
+    .nav-item.active .nav-lbl { color:var(--on-surface); font-weight:700; }
+
+    /* ══════════════════════════════════════════
+       PAGES
+    ══════════════════════════════════════════ */
+    .page { display:none; padding:0 16px 110px; animation:fadeIn .2s ease; }
+    .page.active { display:block; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    .top-bar { display:flex; align-items:center; justify-content:space-between; padding:20px 0 12px; }
+
+    /* ══════════════════════════════════════════
+       CARDS
+    ══════════════════════════════════════════ */
+    .card   { background:var(--sc-low);    border-radius:var(--r-xl); padding:20px; margin-bottom:12px; }
+    .card-e { background:var(--sc-lowest); border-radius:var(--r-xl); padding:20px; margin-bottom:12px; box-shadow:var(--el1); }
+    .card-hero {
+      background:var(--primary); color:var(--on-primary);
+      border-radius:var(--r-xl); padding:24px; margin-bottom:16px;
+      position:relative; overflow:hidden;
+    }
+    .card-hero::before { content:''; position:absolute; top:-50px; right:-50px; width:200px; height:200px; background:rgba(255,255,255,.08); border-radius:50%; }
+    .card-hero::after  { content:''; position:absolute; bottom:-70px; left:-40px; width:240px; height:240px; background:rgba(255,255,255,.06); border-radius:50%; }
+    .card-ok   { background:var(--success-container); color:var(--success); border-radius:var(--r-xl); padding:24px; margin-bottom:16px; text-align:center; }
+
+    /* ══════════════════════════════════════════
+       CHIPS
+    ══════════════════════════════════════════ */
+    .chip { display:inline-flex; align-items:center; gap:4px; padding:6px 12px; border-radius:var(--r-s); font-size:12px; font-weight:500; letter-spacing:.5px; }
+    .ch-p  { background:var(--primary-container);   color:var(--on-primary-container); }
+    .ch-s  { background:var(--secondary-container); color:var(--on-secondary-container); }
+    .ch-t  { background:var(--tertiary-container);  color:var(--on-tertiary-container); }
+    .ch-ok { background:var(--success-container);   color:var(--success); }
+    .ch-w  { background:var(--warning-container);   color:var(--warning); }
+    .ch-er { background:var(--error-container);     color:var(--error); }
+
+    /* ══════════════════════════════════════════
+       STATS
+    ═════════════════════════════════════════ */
+    .stats-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px; }
+    .stat-card { background:var(--sc); border-radius:var(--r-l); padding:14px 8px; text-align:center; }
+    .stat-val  { font-size:28px; font-weight:700; color:var(--primary); line-height:1.1; }
+    .stat-lbl  { font-size:11px; color:var(--on-sv); margin-top:4px; font-weight:500; }
+
+    /* ══════════════════════════════════════════
+       BUTTONS
+    ══════════════════════════════════════════ */
+    .btn  { display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:var(--r-full); padding:12px 24px; font-size:14px; font-weight:500; cursor:pointer; transition:all .2s; font-family:inherit; width:100%; }
+    .btn:disabled { opacity:.5; cursor:default; }
+    .btn-f { background:var(--primary); color:var(--on-primary); }
+    .btn-f:hover:not(:disabled) { filter:brightness(.9); }
+    .btn-t { background:var(--secondary-container); color:var(--on-secondary-container); }
+    .btn-o { background:transparent; color:var(--primary); border:1px solid var(--outline); }
+    .btn-o:hover:not(:disabled) { background:var(--overlay); }
+    .btn-d { background:transparent; color:var(--error); border:1px solid var(--error); }
+
+    /* FAB */
+    .fab {
+      position:fixed; bottom:88px; right:max(16px, calc(50% - 224px));
+      background:var(--primary-container); color:var(--on-primary-container);
+      border:none; border-radius:var(--r-xl); padding:16px 24px;
+      display:flex; align-items:center; gap:10px;
+      font-size:16px; font-we-weight:600; cursor:pointer;
+      box-shadow:var(--el3); transition:all .2s; z-index:100; font-family:inherit;
+    }
+    .fab.done { background:var(--success-container); color:var(--success); }
+    .fab:disabled { opacity:.7; cursor:default; }
+
+    /* ══════════════════════════════════════════
+       EXERCISE ITEMS
+    ══════════════════════════════════════════ */
+    .ex-item { display:flex; align-items:center; gap:14px; padding:12px; border-radius:var(--r-l); cursor:pointer; user-select:none; transition:background .15s; margin-bottom:2px; }
+    .ex-item:hover { background:var(--overlay); }
+    .ex-item:active { background:rgba(0,0,0,.1); }
+    .chkbox { width:22px; height:22px; border-radius:50%; border:2px solid var(--outline); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+    .ex-item.checked .chkbox ; background:var(--primary); border-color:var(--primary); }
+    .chkbox .material-icons-round { font-size:14px; color:var(--on-primary); opacity:0; transition:opacity .15s; }
+    .ex-item.checked .chkbox .material-icons-round { opacity:1; }
+    .ex-item.checked .ex-name { text-decoration:line-through; color:var(--on-sv); }
+    .ex-video-btn { margin-left:auto; background:var(--sc); border:none; border-radius:var(--r-s); padding:6px 8px; cursor:pointer; color:var(--primary); display:flex; align-items:center; gap:4px; font-size:11px; font-weight:500; font-family:inherit; flex-shrink:0; white-space:nowrap; }
+    .ex-video-btn:hover { background:var(--primary-container); }
+
+    /* ══════════════════════════════════════════
+       VIDEO MODAL
+    ══════════════════════════════════════════ */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:1000;
+      display:none; align-items:center; justify-content:center; padding:20px;
+    }
+    .modal-overlay.open { display:flex; animation:fadeIn .2s ease; }
+    .modal {
+      background:var(--sc-lowest); border-radius:var(--r-xl); padding:0;
+      width:100%; max-width:440px; overflow:hidden; box-shadow:var(--el3);
+    }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--outline-variant); }
+    .modal-close { background:none; border:none; cursor:pointer; color:var(--on-sv); display:flex; align-items:center; padding:4px; border-radius:50%; }
+    .modal-close:hover { background:var(--overlay); }
+    .video-wrap { position:relative; padding-bottom:56.25%; height:0; overflow:hidden; }
+    .video-wrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+    .modal-tip { padding:14px 20px; background:var(--sc); }
+
+    /* ══════════════════════════════════════════
+       CALENDAR
+    ══════════════════════════════════════════ */
+    .cal-grid   { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+    .cal-header { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:4px; }
+    .cal-hdr    { font-size:10px; font-weight:600; color:var(--on-sv); text-align:center; }
+    .cal-day    { aspect-ratio:1; border-radius:var(--r-s); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:500; background:var(--sc); color:var(--on-sv); }
+    .cal-day.done   { background:var(--primary); color:var(--on-primary); }
+    .cal-day.today  { border:2px solid var(--primary); color:var(--primary); background:transparent; }
+    .cal-day.rest   { background:var(--sc-high); color:var(--outline); }
+    .cal-day.future { opacity:.3; }
+    .cal-day.missed { background:var(--error-container); color:var(--error); }
+
+    /* ══════════════════════════════════════════
+       HR ZONES
+    ══════════════════════════════════════════ */
+    .hr-zone { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:var(--r-m); margin-bottom:6px; }
+    .hr-dot  { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+    /* ══════════════════════════════════════════
+       PROGRESS BAR
+    ══════════════════════════════════════════ */
+    .prog-track { height:8px; background:var(--sc-high); border-radius:4px; overflow:hidden; }
+    .prog-fill  { height:100%; background:linear-gradient(90deg,var(--primary),#00a0a0); border-radius:4px; transition:width .8s cubic-bezier(.34,1.56,.64,1); }
+
+    /* ══════════════════════════════════════════
+       SETTINGS
+    ══════════════════════════════════════════ */
+    .sec-title { font-size:12px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--primary); margin:20px 0 8px; }
+    .md-field  { position:relative; margin-bottom:12px; }
+    .md-field input, .md-field select {
+      width:100%; padding:24px 16px 8px; border:1px solid var(--outline);
+      border-radius:var(--r-xs); background:var(--surface);
+      font-size:16px; font-family:inherit; color:var(--on-surface); outline:none; transition:border .2s;
+      -webkit-appearance:none; appearance:none;
+    }
+    .md-field input:focus, .md-field select:focus { border-color:var(--primary); border-width:2px; }
+    .md-field label { position:absolute; top:8px; left:16px; font-size:12px; color:var(--on-sv); font-weight:500; pointer-events:none; }
+    .energy-row  { display:flex; gap:6px; }
+    .energy-btn  { flex:1; padding:10px 2px; border:2px solid var(--outline-variant); border-radius:var(--r-l); background:transparent; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; transition:all .2s; font-family:inherit; font-size:18px; }
+    .energy-btn span { font-size:9px; font-weight:500; color:var(--on-sv); letter-spacing:.3px; text-transform:uppercase; }
+    .energy-btn.active { border-color:var(--primary); background:var(--primary-container); }
+    .toggle-row  { display:flex; align-items:center; justify-content:space-between; padding:12px 0; }
+    .toggle-sw   { width:52px; height:32px; background:var(--surface-variant); border-radius:16px; cursor:pointer; position:relative; transition:background .2s; border:none; flex-shrink:0; }
+    .toggle-sw::after { content:''; position:absolute; width:24px; height:24px; background:var(--outline); border-radius:50%; top:4px; left:4px; transition:all .2s; }
+    .toggle-sw.on { background:var(--primary); }
+    .toggle-sw.on::after { background:var(--on-primary); left:24px; }
+    .notif-time-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:4px; }
+    .divider { height:1px; background:var(--outline-variant); margin:10px 0; }
+
+    /* Ankle card */
+    .ankle-card { background:var(--warning-container); border-radius:var(--r-xl); padding:18px; margin-bottom:12px; }
+    .ankle-ttl  { color:var(--warning); font-weight:600; font-size:14px; }
+
+    /* Dark-mode toggle in top bar */
+    .icon-btn { background:none; border:none; cursor:pointer; color:var(--on-sv); display:flex; align-items:center; padding:8px; border-radius:50%; transition:background .15s; }
+    .icon-btn:hover { background:var(--overlay); }
+
+    /* Notification banner */
+    .notif-banner { display:flex; align-items:center; gap:12px; padding:14px 16px; background:var(--primary-container); border-radius:var(--r-l); margin-bottom:12px; }
+    .notif-banner .material-icons-round { color:var(--on-primary-container); }
+    .notif-banner-txt { flex:1; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width:3px; }
+    ::-webkit-scrollbar-thumb { background:var(--outline-variant); border-radius:2px; }
+  </style>
+</head>
+<body>
+
+<!-- ══════ VIDEO MODAL ══════ -->
+<div class="modal-overlay" id="videoModal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="tl-md" id="modalTitle">Exercise</div>
+      <button class="modal-close" onclick="closeVideoModal()"><span class="material-icons-round">close</span></button>
+    </div>
+    <div class="video-wrap">
+      <iframe id="modalIframe" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div class="modal-tip">
+      <div class="lbl-sm" style="color:var(--on-sv);margin-bottom:4px">FORM TIP</div>
+      <div class="bd-md" id="modalTip"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ TODAY PAGE ══════ -->
+<div id="page-today" class="page active">
+  <div class="top-bar">
+    <div>
+      <div class="bd-sm" id="today-date" style="color:var(--on-sv)"></div>
+      <div class="hl-sm" id="today-greeting" style="font-weight:600"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="chip ch-p" id="week-chip">Week 1</div>
+      <button class="icon-btn" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">
+        <span class="material-icons-round" id="dark-icon">dark_mode</span>
+      </button>
+    </div>
+  </div>
+  <div id="hero-section"></div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val" id="stat-streak">0</div><div class="stat-lbl">🔥 Streak</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-total">0</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-week">0/6</div><div class="stat-lbl">This Week</div></div>
+  </div>
+  <div class="card-e" style="cursor:pointer" onclick="navigate('workout')">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="tl-md">Today's Workout</div>
+      <span class="material-icons-round" style="color:var(--primary)">arrow_forward</span>
+    </div>
+    <div id="today-preview"></div>
+  </div>
+  <div class="card">
+    <div class="lbl-md" style="color:var(--on-sv);margin-bottom:6px;letter-spacing:1px">COACH'S NOTE</div>
+    <div class="bd-md" id="coach-msg" style="line-height:1.6"></div>
+  </div>
+</div>
+
+<!-- ══════ WORKOUT PAGE ══════ -->
+<div id="page-workout" class="page">
+  <div class="top-bar">
+    <div class="hl-sm" id="wo-title" style="font-weight:600">Workout</div>
+    <div id="wo-chip"></div>
+  </div>
+  <div id="wo-complete-banner" style="display:none" class="card-ok">
+    <div style="font-size:48px">🎉</div>
+    <div class="tl-lg" style="margin-top:8px">Workout Complete!</div>
+    <div class="bd-md" style="margin-top:6px;opacity:.8">Excellent work today, Mordechai!</div>
+  </div>
+  <div id="wo-main"></div>
+  <div id="wo-ankle"></div>
+  <div style="height:80px"></div>
+</div>
+
+<!-- ══════ PROGRESS PAGE ══════ -->
+<div id="page-progress" class="page">
+  <div class="top-bar">
+    <div class="hl-sm" style="font-weight:600">Progress</div>
+  </div>
+  <div class="card-e">
+    <div class="tl-md" style="margin-bottom:4px">12-Week Program</div>
+    <div class="bd-sm" style="color:var(--on-sv);margin-bottom:12px" id="prog-phase"></div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px">
+      <span class="lbl-sm" style="color:var(--on-sv)">Week 1</span>
+      <span class="lbl-sm" id="prog-lbl" style="color:var(--primary);font-weight:700"></span>
+      <span class="lbl-sm" style="color:var(--on-sv)">Week 12</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="tl-md" style="margin-bottom:12px">This Week</div>
+    <div class="cal-header"><div class="cal-hdr">MON</div><div class="cal-hdr">TUE</div><div class="cal-hdr">WED</div><div class="cal-hdr">THU</div><div class="cal-hdr">FRI</div><div class="cal-hdr">SAT</div><div class="cal-hdr">SUN</div></div>
+    <div class="cal-grid" id="week-grid"></div>
+  </div>
+  <div class="card">
+    <div class="tl-md" style="margin-bottom:4px">Your HR Zones</div>
+    <div class="bd-sm" id="hr-lbl" style="color:var(--on-sv);margin-bottom:12px"></div>
+    <div id="hr-zones"></div>
+  </div>
+  <div class="card">
+    <div class="tl-md" style="margin-bottom:12px">Full Program Calendar</div>
+    <div class="cal-header"><div class="cal-hdr">M</div><div class="cal-hdr">T</div><div class="cal-hdr">W</div><div class="cal-hdr">T</div><div class="cal-hdr">F</div><div class="cal-hdr">S</div><div class="cal-hdr">S</div></div>
+    <div id="full-cal"></div>
+  </div>
+</div>
+
+<!-- ══════ SETTINGS PAGE ══════ -->
+<div id="page-settings" class="page">
+  <div class="top-bar"><div class="hl-sm" style="font-weight:600">Settings</div></div>
+
+  <!-- Profile -->
+  <div class="sec-title">My Profile</div>
+  <div class="card-e">
+    <div class="md-field"><label>Age</label><input type="number" id="inp-age" value="35" min="16" max="99"></div>
+    <div class="md-field"><label>Weight (lbs)</label><input type="number" id="inp-weight" value="155" min="80" max="400"></div>
+    <div style="margin-bottom:16px">
+      <div class="lbl-md" style="color:var(--on-sv);margin-bottom:10px">TODAY'S ENERGY LEVEL</div>
+      <div class="energy-row" id="energy-row"></div>
+    </div>
+    <button class="btn btn-f" onclick="saveProfile()"><span class="material-icons-round" style="font-size:18px">save</span>Save Profile</button>
+    <div class="bd-sm" id="save-msg" style="color:var(--success);margin-top:8px;text-align:center;display:none">✓ Profile saved!</div>
+  </div>
+
+  <!-- Appearance -->
+  <div class="sec-title">Appearance</div>
+  <div class="card">
+    <div class="toggle-row">
+      <div><div class="tl-sm">Dark Mode</div><div class="bd-sm" style="color:var(--on-sv)">Easy on the eyes</div></div>
+      <button class="toggle-sw" id="dark-toggle" onclick="toggleDark()"></button>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="sec-title">Notifications</div>
+  <div id="notif-perm-card"></div>
+  <div class="card-e" id="notif-settings-card">
+    <div class="toggle-row">
+      <div><div class="tl-sm">Morning Reminder</div><div class="bd-sm" style="color:var(--on-sv)">Get ready to work out</div></div>
+      <button class="toggle-sw" id="toggle-morning" onclick="toggleNotif('morning')"></button>
+    </div>
+    <div class="notif-time-row" id="morning-time-row">
+      <div class="md-field"><label>Hour (0–23)</label><input type="number" id="inp-morning-h" value="9" min="0" max="23"></div>
+      <div class="md-field"><label>Minute (0–59)</label><input type="number" id="inp-morning-m" value="0" min="0" max="59"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="toggle-row">
+      <div><div class="tl-sm">Evening Check-in</div><div class="bd-sm" style="color:var(--on-sv)">Did you complete your workout?</div></div>
+      <button class="toggle-sw" id="toggle-evening" onclick="toggleNotif('evening')"></button>
+    </div>
+    <div class="notif-time-row" id="evening-time-row">
+      <div class="md-field"><label>Hour (0–23)</label><input type="number" id="inp-evening-h" value="22" min="0" max="23"></div>
+      <div class="md-field"><label>Minute (0–59)</label><input type="number" id="inp-evening-m" value="0" min="0" max="59"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="md-field">
+      <label>Snooze Duration</label>
+      <select id="sel-snooze">
+        <option value="5">5 minutes</option>
+        <option value="10" selected>10 minutes</option>
+        <option value="15">15 minutes</option>
+        <option value="20">20 minutes</option>
+        <option value="30">30 minutes</option>
+        <option value="60">1 hour</option>
+      </select>
+    </div>
+    <button class="btn btn-f" onclick="saveNotifSettings()" style="margin-bottom:8px"><span class="material-icons-round" style="font-size:18px">alarm</span>Save & Schedule Reminders</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-t" onclick="testNotif('morning')" style="font-size:12px"><span class="material-icons-round" style="font-size:16px">notifications</span>Test Morning</button>
+      <button class="btn btn-t" onclick="testNotif('evening')" style="font-size:12px"><span class="material-icons-round" style="font-size:16px">notifications</span>Test Evening</button>
+    </div>
+    <div class="bd-sm" id="notif-save-msg" style="color:var(--success);margin-top:8px;text-align:center;display:none">✓ Reminders scheduled!</div>
+  </div>
+
+  <!-- Fitbit -->
+  <div class="sec-title">Fitbit Integration</div>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <div style="background:#00B0B9;border-radius:8px;padding:6px 10px;color:white;font-weight:700;font-size:13px">fitbit</div>
+      <div class="tl-sm">Sync Fitbit Data</div>
+    </div>
+    <div class="bd-sm" style="color:var(--on-sv);margin-bottom:14px;line-height:1.6">Connect your Fitbit to sync heart rate, steps, and activity data for smarter recommendations.</div>
+    <div id="fitbit-status-msg"></div>
+    <div class="md-field"><label>Fitbit Client ID</label><input type="text" id="inp-fitbit" placeholder="From dev.fitbit.com"></div>
+    <button class="btn btn-o" onclick="connectFitbit()" style="margin-bottom:10px"><span class="material-icons-round" style="font-size:18px">link</span>Connect Fitbit</button>
+    <div class="bd-sm" style="color:var(--on-sv);line-height:1.5;background:var(--sc);border-radius:var(--r-m);padding:10px">
+      <strong>Setup:</strong> Register a Personal app at <code>dev.fitbit.com</code> → copy the Client ID here. Requires HTTPS (run <code>python3 -m http.server 8080</code> locally, then access via localhost:8080).
+    </div>
+  </div>
+
+  <!-- Program -->
+  <div class="sec-title">Program</div>
+  <div class="card">
+    <div style="margin-bottom:12px">
+      <div class="tl-sm">Program Start Date</div>
+      <div class="bd-sm" id="start-date-lbl" style="color:var(--on-sv);margin-top:2px"></div>
+    </div>
+    <button class="btn btn-d" onclick="resetProgram()"><span class="material-icons-round" style="font-size:18px">restart_alt</span>Reset Program (Week 1)</button>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab" onclick="markComplete()" style="display:none">
+  <span class="material-icons-round">check</span>
+  <span id="fab-txt">Mark Complete</span>
+</button>
+
+<!-- NAV -->
+<nav class="nav-bar">
+  <div class="nav-item active" onclick="navigate('today')" id="nav-today"><div class="nav-ind"><span class="material-icons-round">home</span></div><span class="nav-lbl">Today</span></div>
+  <div class="nav-item" onclick="navigate('workout')" id="nav-workout"><div class="nav-ind"><span class="material-icons-round">fitness_center</span></div><span class="nav-lbl">Workout</span></div>
+  <div class="nav-item" onclick="navigate('progress')" id="nav-progress"><div class="nav-ind"><span class="material-icons-round">bar_chart</span></div><span class="nav-lbl">Progress</span></div>
+  <div class="nav-item" onclick="navigate('settings')" id="nav-settings"><div class="nav-ind"><span class="material-icons-round">settings</span></div><span class="nav-lbl">Settings</span></div>
+</nav>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// EXERCISE VIDEO DATABASE
+// YouTube embed IDs + form tips for each exercise
+// ══════════════════════════════════════════════════════════
+const VIDEOS = {
+  'Push-ups':            { yt:'_l3ySVKYVJ8', tip:'Keep your core tight, body in a straight line. Lower until chest nearly touches the floor. Elbows at 45°, not flared wide.' },
+  'Pull-ups':            { yt:'eGo4IYlbE5g', tip:'Start from a dead hang, engage your lats, pull until chin clears the bar. For negatives: jump to the top and lower slowly for 5s.' },
+  'Pike Push-ups':       { yt:'sposDXWEB0A', tip:'Form an inverted V. Lower your head between your hands — targets shoulders like an overhead press.' },
+  'Crunches':            { yt:'Xyd_fa5zoEU', tip:'Don\'t pull your neck. Focus on contracting your abs and lifting your shoulder blades only — not a full sit-up.' },
+  'Plank Hold':          { yt:'ASdvSCBV6kk', tip:'Squeeze glutes, tuck pelvis slightly, brace abs hard. Think "tall spine". Don\'t let hips sag or rise.' },
+  'Side Plank':          { yt:'K2FBmPLC6Vk', tip:'Stack feet or stagger them. Drive your hip up, not forward. Feel the oblique loading on the bottom side.' },
+  'Mountain Climbers':   { yt:'nmwgirgXLYM', tip:'Keep hips level and low. Drive knees toward chest alternately at pace. Don\'t let your lower back arch.' },
+  'Superman Holds':      { yt:'z6PJMT2y8GQ', tip:'Lift arms and legs simultaneously off the floor, hold 2s, squeeze glutes and lower back. Don\'t crank your neck up.' },
+  'Tricep Dips (chair)': { yt:'0326dy_-CzM', tip:'Fingers forward, elbows track backward (not out). Lower until upper arms are parallel to floor. Keep hips close to the chair.' },
+  'Ankle Circles':       { yt:'ZZgATlpTR4o', tip:'Slow, full range of motion. 10 clockwise, 10 counterclockwise. Feel the whole ankle joint moving.' },
+  'Calf Raises (both legs)':        { yt:'gwLzBJYoWlQ', tip:'Rise to a full toe-up position and lower slowly (3 counts down). Use a step edge for full range.' },
+  'Calf Raises → single leg':       { yt:'gwLzBJYoWlQ', tip:'Transition to single-leg as ankle allows. Hold a wall for balance, not weight. Full range.' },
+  'Single-Leg Calf Raises':         { yt:'gwLzBJYoWlQ', tip:'Single-leg is significantly harder. Go slow, focus on balance as much as strength.' },
+  'Single-Leg Balance':  { yt:'LlZt_UEJalc', tip:'Soft knee, gaze fixed on one point. When comfortable, close your eyes for a proprioceptive challenge.' },
+  'Ankle Alphabet':      { yt:'ZZgATlpTR4o', tip:'Move only your ankle — keep the leg still. Big deliberate letters. Great for ATFL rehab.' },
+  'Towel Scrunches':     { yt:'xzFBKBUlmvQ', tip:'Use your toes to scrunch a towel toward you, then spread them out. Strengthens intrinsic foot muscles.' },
+  'Resistance Band Eversion': { yt:'yqpRlb5tFaY', tip:'Anchor the band inside, foot everts outward against resistance. Move slowly and with control. Key ATFL movement.' },
+};
+
+// ══════════════════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════════════════
+const SK = 'mordechai_fitplan_v3';
+function load()   { try{const d=localStorage.getItem(SK);return d?JSON.parse(d):null;}catch(e){return null;} }
+function save(d)  { localStorage.setItem(SK,JSON.stringify(d)); }
+function getData() {
+  let d = load();
+  if (!d) d = {
+    startDate: dateStr(new Date()),
+    completions: {}, checks: {},
+    profile: { age:35, weight:155, energy:3 },
+    fitbit: { clientId:'', token:null },
+    notifs: { morning:{enabled:true,h:9,m:0}, evening:{enabled:true,h:22,m:0}, snoozeMin:10 },
+    darkMode: false
+  };
+  // Migrate older saves
+  if (!d.notifs) d.notifs = { morning:{enabled:true,h:9,m:0}, evening:{enabled:true,h:22,m:0}, snoozeMin:10 };
+  if (d.darkMode === undefined) d.darkMode = false;
+  return d;
+}
+
+// ══════════════════════════════════════════════════════════
+// DATE UTILS
+// ══════════════════════════════════════════════════════════
+function dateStr(d) { return d.toISOString().split('T')[0]; }
+function todayStr() { return dateStr(new Date()); }
+function daysBetween(a,b) { return Math.floor((new Date(b)-new Date(a))/86400000); }
+function getWeek(sd) { return Math.min(Math.floor(daysBetween(sd,todayStr())/7)+1,12); }
+function getDow()   { return (new Date().getDay()+6)%7; }
+
+// ══════════════════════════════════════════════════════════
+// WORKOUT DATA
+// ══════════════════════════════════════════════════════════
+function band(w) { return Math.min(Math.floor((w-1)/2),5); }
+const PROG = {
+  push:   [{s:3,r:10},{s:3,r:15},{s:4,r:15},{s:4,r:20},{s:5,r:20},{s:5,r:25}],
+  pull:   [{s:3,r:3},{s:3,r:5},{s:3,r:7},{s:4,r:7},{s:4,r:10},{s:5,r:10}],
+  plank:  [{s:3,d:30},{s:3,d:45},{s:3,d:60},{s:4,d:60},{s:4,d:75},{s:5,d:75}],
+  crunch: [{s:3,r:15},{s:3,r:20},{s:3,r:25},{s:4,r:25},{s:4,r:30},{s:5,r:30}],
+  cardio: [
+    {min:20,label:'Easy',    zone:'Z2',tip:'Conversational pace — hold full sentences.'},
+    {min:25,label:'Moderate',zone:'Z3', tip:'Steady state. Short phrases only.'},
+    {min:30,label:'Moderate',zone:'Z3',tip:'Good pace. Light jog OK if ankle is ready.'},
+    {min:35,label:'Mod-Hard',zone:'Z4',tip:'Add a 5-min hard push at the end.'},
+    {min:40,label:'Hard',    zone:'Z4',tip:'3×2 min intervals with 90s recovery.'},
+    {min:45,label:'Hard+',   zo zone:'Z5',tip:'4×2 min sprints. Empty the tank!'},
+  ]
+};
+const PHASES=['Foundation','Foundation','Building','Building','Developing','Developing','Intermediate','Intermediate','Advanced','Advanced','Peak','Peak'];
+
+function hrZones(age) {
+  const max=220-age;
+  return [
+    {z:'Z1',name:'Recovery',  pct:'50–60%',bpm:`${~~(max*.5)}–${~~(max*.6)}`,color:'#66BB6A'},
+    {z:'Z2',name:'Aerobic',   pct:'60–70%',bpm:`${~~(max*.6)}–${~~(max*.7)}`,color:'#26A69A'},
+    {z:'Z3',name:'Tempo',     pct:'70–80%',bpm:`${~~(max*.7)}–${~~(max*.8)}`,color:'#FFA726'},
+    {z:'Z4',name:'Threshold', pct:'80–90%',bpm:`${~~(max*.8)}–${~~(max*.9)}`,color:'#EF5350'},
+    {z:'Z5',name:'Max Effort',pct:'90–100%',bpm:`${~~(max*.9)}–${max}`,      color:'#AB47BC'},
+  ];
+}
+function estCals(zone,min,lbs){const kg=lbs/2.205,met={Z1:4,Z2:6,Z3:8,Z4:10,Z5:12}[zone]||7;return ~~(met*kg*min/60);}
+
+function getAnkle(week) {
+  if(week>6) return [];
+  const list=[
+    {name:'Ankle Circles',detail:'2 × 10 each direction, each foot'},
+    {name:week<=2?'Calf Raises (both legs)':week<=4?'Calf Raises → single leg':'Single-Leg Calf Raises',detail:`3 × ${week<=2?15:12} reps`},
+    {name:'Single-Leg Balance',detail:`${week<=2?'20':week<=4?'30':'45'}s per leg${week>2?' (eyes closed)':''}`},
+    {name:'Ankle Alphabet',detail:'Trace A–Z with each foot (big toe = pen)'},
+  ];
+  if(week>=3) list.push({name:'Towel Scrunches',detail:'2 × 20 each foot'});
+  if(week>=5) list.push({name:'Resistance Band Eversion',detail:'2 × 15 each foot'});
+  return list;
+}
+
+function buildCardio(c,vehicle,extraMin,profile){
+  const dur=c.min+(extraMin||0);
+  const zones=hrZones(profile.age||35), zd=zones.find(z=>z.z===c.zone)||zones[1];
+  return{dur,label:c.label,zone:c.zone,zoneName:zd.name,hrRange:zd.bpm,cal:estCals(c.zone,dur,profile.weight||155),vehicle,tip:c.tip};
+}
+
+function getWorkout(week,dow,profile){
+  const b=band(week);
+  const pp=PROG.push[b],pu=PROG.pull[b],pl=PROG.plank[b],cr=PROG.crunch[b],ca=PROG.cardio[b];
+  const ankle=getAnkle(week),pikes=Math.max(5,~~(pp.r*.6));
+  if(dow===6) return{type:'rest',icon:'😴',name:'Rest Day',tip:'Active recovery: walk, stretch, or foam roll.'};
+  const map={
+    0:{type:'strength',icon:'💪',name:'Upper Body Strength',tag:'Strength',exercises:[
+        {name:'Push-ups',detail:`${pp.s} sets × ${pp.r} reps`},
+        {name:'Pull-ups',detail:`${pu.s} × ${pu.r} reps${pu.r<=3?' (negatives OK)':''}`},
+        {name:'Pike Push-ups',detail:`3 × ${pikes} reps`},
+        {name:'Crunches',detail:`${cr.s} × ${cr.r} reps`},
+        {name:'Plank Hold',detail:`${pl.s} × ${pl.d}s`},
+      ],ankle},
+    1:{type:'cardio',icon:'🚴',name:'Cardio Session',tag:'Cardio',cardio:buildCardio(ca,'Spin bike or road bike',0,profile),ankle},
+    2:{type:'strength',icon:'🏋️',name:'Full Body Strength',tag:'Strength',exercises:[
+        {name:'Push-ups',detail:`${pp.s} × ${pp.r} reps`},
+        {name:'Pull-ups',detail:`${pu.s} × ${pu.r} reps`},
+        {name:'Plank Hold',detail:`${pl.s} × ${pl.d}s`},
+        {name:'Crunches',detail:`${cr.s} × ${cr.r} reps`},
+        {name:'Superman Holds',detail:'3 × 10 reps (2s hold each)'},
+        {name:'Tricep Dips (chair)',detail:'3 × 12 reps'},
+      ],ankle},
+    3:{type:'cardio',icon:'🔄',name:'Recovery Cardio',tag:'Cardio',
+       cardio:buildCardio({min:Math.max(15,ca.min-5),label:'Easy-Mod',zone:'Z2',tip:'Active recovery. Comfortable, conversational pace.'},'Spin bike',0,profile),
+       ankle:week<=3?ankle:[]},
+    4:{type:'strength',icon:'🎯',name:'Core & Push',tag:'Strength',exercises:[
+        {name:'Push-ups',detail:`${pp.s} × ${pp.r} reps`},
+        {name:'Crunches',detail:`${cr.s} × ${cr.r} reps`},
+        {name:'Plank Hold',detail:`${pl.s} × ${pl.d}s`},
+        {name:'Side Plank',detail:`2 × ${~~(pl.d*.75)}s per side`},
+        {name:'Mountain Climbers',detail:'3 × 20 reps'},
+      ],ankle},
+    5:{type:'cardio',icon:'🚲',name:'Long Ride',tag:'Long Cardio',cardio:buildCardio({...ca,tip:ca.tip+' Pace yourself.'},'Road bike (if weather) or spin bike',10,profile),
+       ankle:week<=4?ankle:[]},
+  };
+  return map[dow]||{type:'rest',icon:'😴',name:'Rest Day', tip:'Rest up.'};
+}
+
+// ══════════════════════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════════════════════
+function streak(comp){let n=0,d=new Date();if(!comp[dateStr(d)])d.setDate(d.getDate()-1);for(lot i=0;i<365;i++){if(comp[dateStr(d)]){n++;d.setDate(d.getDate()-1);}else break;}return n;}
+function weekDone(comp){const d=new Date(),dow=getDow();d.setDate(d.getDate()-dow);let c=0;for(let i=0;i<7;i++){if(comp[dateStr(d)])c++;d.setDate(d.getDate()+1);}return c;}
+function totalDone(comp){return Object.values(comp).filter(Boolean).length;}
+
+const COACH=T�5�onsistency beats intensity. Showing up every day is how champions are made.',
+  'At 35, you\'re in your athletic prime. Use it wisely and you\'ll be stronger at 45.',
+  'The ATFL rehab work now means injury-free training for years. Smart investment.',
+  'Each rep is a vote for the person you\'re becoming.',
+  'Your spin sessions are building an aerobic base that will carry you everywhere.',
+  'Progressive overload is the science of getting stronger. Trust the process.',
+  'Pull-ups are the ultimate relative strength test. Watch those numbers climb.',
+  '155 lbs of functional strengt3trength — every workout moves the needle.',
+  'Recovery isn\'t laziness — it\'s where adaptation happens. Rest days count.',
+];
+
+// ══════════════════════════════════════════════════════════
+// DARK MODE
+// ══════════════════════════════════════════════════════════
+function applyDark(isDark) {
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('dark-icon').textContent = isDark ? 'light_mode' : 'dark_mode';
+  document.getElementById('theme-meta').content = isDark ? '#0F1414' : '#006A6A';
+  const t = document.getElementById('dark-toggle');
+  if (t) t.className = 'toggle-sw' + (isDark ? ' on' : '');
+}
+function toggleDark() {
+  const data = getData();
+  data.darkMode = !data.darkMode;
+  save(data);
+  applyDark(data.darkMode);
+}
+
+// ══════════════════════════════════════════════════════════
+// SERVICE WORKER & NOTIFICATIONS
+// ══════════════════════════════════════════════════════════
+let swReg = null;
+async function initSW() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    swReg = await navigator.serviceWorker.register('./sw.js');
+    navigator.serviceWorker.addEventListener('message', () => {}); // keepalive port
+    // Keepalive ping every 20s to keep SW alive while page is open
+    setInterval(() => postToSW({ type:'PING' }), 20000);
+  } catch(e) { console.warn('SW registration failed:', e); }
+}
+function postToSW(msg) {
+  if (!swReg || !swReg.active) return;
+  swReg.active.postMessage(msg);
+}
+function getTodayWorkoutDesc() {
+  const data=getData(), week=getWeek(data.startDate), wo=getWorkout(week,getDow(),data.profile);
+  if(wo.type==='rest')    return 'Rest Day — active recovery';
+  if(wo.type==='cardio')  return `${wo.cardio.dur} min ${wo.cardio.label} cardio`;
+  return wo.name;
+}
+function scheduleNotifs() {
+  const data = getData();
+  const notif = data.notifs;
+  postToSW({
+    type: 'SCHEDULE',
+    payload: {
+      morning:    { enabled:notif.morning.enabled, h:notif.morning.h, m:notif.morning.m },
+      evening:    { enabled:notif.evening.enabled, h:notif.evening.h, m:notif.evening.m },
+      snoozeMin:  notif.snoozeMin,
+      workoutDesc: getTodayWorkoutDesc()
+    }
+  });
+}
+async function requestNotifPermission() {
+  const perm = await Notification.requestPermission();
+  renderNotifPermCard(perm);
+  if (perm === 'granted') scheduleNotifs();
+}
+function renderNotifPermCard(perm) {
+  const el = document.getElementById('notif-perm-card');
+  if (!el) return;
+  if (!('Notification' in window)) {
+    el.innerHTML=`<div class="notif-banner" style="background:var(--error-container)"><span class="material-icons-round" style="color:var(--error)">error</span><div class="bd-sm" style="color:var(--error)">Notifications are not supported in this browser. Use Chrome on Android.</div></div>`;
+    return;
+  }
+  if (perm === 'granted') {
+    el.innerHTML=`<div class="notif-banner ch-ok" style="background:var(--success-container)"><span class="material-icons-round" style="color:var(--success)">notifications_active</span><div class="bd-sm notif-banner-txt" style="color:var(--success)">Notifications enabled ✓</div></div>`;
+  } else if (perm === 'denied') {
+    el.innerHTML=`<div class="notif-banner" style="background:var(--error-container)"><span class="material-icons-round" style="color:var(--error)">notifications_off</span><div class="bd-sm notif-banner-txt" style="color:var(--error)">Notifications blocked. Go to your browser/app settings to re-enable.</div></div>`;
+  } else {
+    el.innerHTML=`<div class="notif-banner"><span class="material-icons-round" style="color:var(--on-primary-container)">notifications</span><div class="notif-banner-txt"><div class="tl-sm">Enable Notifications</div><div class="bd-sm" style="color:var(--on-sv)">Tap to allow daily workout reminders</div></div><button class="btn btn-f" style="width:auto;padding:8px 16px;font-size:13px" onclick="requestNotifPermission()">Enable</button></div>`;
+  }
+}
+function toggleNotif(type) {
+  const data=getData(); data.notifs[type].enabled=!data.notifs[type].enabled; save(data);
+  const t=document.getElementById('toggle-'+type);
+  if(t) t.className='toggle-sw'+(data.notifs[type].enabled?' on':'');
+}
+function saveNotifSettings() {
+  const data=getData();
+  data.notifs.morning.h = +document.getElementById('inp-morning-h').value||9;
+  data.notifs.morning.m = +document.getElementById('inp-morning-m').value||0;
+  data.notifs.evening.h = +document.getElementById('inp-evening-h').value||22;
+  data.notifs.evening.m = +document.getElementById('inp-evening-m').value||0;
+  data.notifs.snoozeMin = +document.getElementById('sel-snooze').value||10;
+  save(data);
+  scheduleNotifs();
+  const msg=document.getElementById('notif-save-msg'); msg.style.display='block';
+  setTimeout(()=>msg.style.display='none',2500);
+}
+function testNotif(kind) {
+  if (Notification.permission !== 'granted') { requestNotifPermission(); return; }
+  postToSW({ type:'TEST', payload:{ kind, workoutDesc:getTodayWorkoutDesc(), snoozeMin: getData().notifs.snoozeMin } });
+}
+
+// ══════════════════════════════════════════════════════════
+// VIDEO MODAL
+// ══════════════════════════════════════════════════════════
+function openVideoModal(name) {
+  const v = VIDEOS[name];
+  if (!v) return;
+  document.getElementById('modalTitle').textContent = name;
+  document.getElementById('modalIframe').src = `https://www.youtube.com/embed/${v.yt}?autoplay=1&rel=0`;
+  document.getElementById('modalTip').textContent = v.tip;
+  document.getElementById('videoModal').classList.add('open');
+}
+function closeVideoModal() {
+  document.getElementById('videoModal').classList.remove('open');
+  document.getElementById('modalIframe').src = '';
+}
+function closeModal(e) { if(e.target===document.getElementById('videoModal')) closeVideoModal(); }
+
+// ══════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  const fab=document.getElementById('fab');
+  if(page==='workout'){
+    const data=getData(),week=getWeek(data.startDate),wo=getWorkout(week,getDow(),data.profile),done=!!data.completions[todayStr()];
+    if(wo.type!=='rest'){fab.style.display='flex';fab.className='fab'+(done?' done':'');fab.disabled=done;document.getElementById('fab-txt').textContent=done?'Completed! ✓':'Mark Complete';}
+    else fab.style.display='none';
+    renderWorkout();
+  } else fab.style.display='none';
+  if(page==='today')    renderToday();
+  if(page==='progress') renderProgress();
+  if(page==='settings') renderSettings();
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER — TODAY
+// ══════════════════════════════════════════════════════════
+function renderToday(){
+  const data=getData(),week=getWeek(data.startDate),dow=getDow();
+  const wo=getWorkout(week,dow,data.profile),done=!!data.completions[todayStr()];
+  const hr=new Date().getHours(),greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+  document.getElementById('today-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('today-greeting').textContent=`${greet}, Mordechai 👋`;
+  document.getElementById('week-chip').textContent=`Week ${week} · ${PHASES[week-1]}`;
+  document.getElementById('stat-streak').textContent=streak(data.completions);
+  document.getElementById('stat-total').textContent=totalDone(data.completions);
+  document.getElementById('stat-week').textContent=weekDone(data.completions)+'/6';
+  document.getElementById('coach-msg').textContent=COACH[~~(Math.random()*COACH.length)];
+  const hero=document.getElementById('hero-section');
+  if(done){
+    hero.innerHTML=`<div class="card-ok"><div style="font-size:52px">🎉</div><div class="tl-lg" style="margin-top:8px">Workout Complete!</div><div class="bd-md" style="margin-top:6px;opacity:.8">You crushed it. Keep the streak going!</div></div>`;
+  } else if(wo.type==='rest'){
+    hero.innerHTML<`<div class="card" style="text-align:center;padding:32px"><div style="font-size:56px">${wo.icon}</div><div class="hl-sm" style="margin-top:10px;font-weight:600">Rest Day</div><div class="bd-md" style="color:var(--on-sv);margin-top:6px">${wo.tip}</div></div>`;
+  } else {
+    const sub=wo.type==='cardio'?`${wo.cardio.dur} min · ${wo.cardio.label} · ${wo.cardio.hrRange} bpm · ~${wo.cardio.cal} cal`:`${wo.exercises.length} exercises · ${PHASES[week-1]} phase`;
+    hero.innerHTML=`<div class="card-hero"><div class="lbl-sm" style="opacity:.85;letter-spacing:1.2px;text-transform:uppercase">${wo.tag||wo.type}</div><div style="font-size:28px;font-weight:700;margin-top:8px;position:relative;z-index:1">${wo.icon} ${wo.name}</div><div class="bd-md" style="margin-top:8px;opacity:.85;position:relative;z-index:1">${sub}</div><div style="margin-top:18px;position:relative;z-index:1"><button class="btn" onclick="navigate('workout')" style="background:rgba(255,255,255,.95);color:var(--primary);width:auto;padding:12px 28px;font-weight:700"><span class="material-icons-round" style="font-size:18px">play_arrow</span>Start Workout</button></div></div>`;
+  }
+  const prev=document.getElementById('today-preview');
+  if(wo.type==='rest') prev.innerHTML=`<div class="bd-sm" style="color:var(--on-sv)">Rest and recover. You've earned it.</div>`;
+  else if(wo.type==='cardio') prev.innerHTML=`<div style="display:flex;gap:6px;flex-wrap:wrap"><div class="chip ch-t">${wo.cardio.dur} min</div><div class="chip ch-t">${wo.cardio.label}</div><div class="chip ch-t">${wo.cardio.hrRange} bpm</div><div class="chip ch-s">~${wo.cardio.cal} cal</div></div>`;
+  else prev.innerHTML<`<div style="display:flex;gap:6px;flex-wrap:wrap">${wo.exercises.slice(0,3).map(e=>`<div class="chip ch-p">${e.name}</div>`).join('')}${wo.exercises.length>3?`<div class="chip ch-s">+${wo.exercises.length-3} more</div>`:''}</div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER — WORKOUT
+// ══════════════════════════════════════════════════════════
+function exItemHTML(ex, idx, type, checks) {
+  const chk = !!checks[(type==='ankle'?'ankle_':'ex_')+idx];
+  const hasVideo = !!VIDEOS[ex.name];
+  return `<div class="ex-item${chk?' checked':''}" id="${type}item${idx}">
+    <div class="chkbox" onclick="toggleCheck(${idx},'${type}')"><span class="material-icons-round">check</span></div>
+    <div style="flex:1" onclick="toggleCheck(${idx},'${type}')">
+      <div class="ex-name tl-sm">${ex.name}</div>
+      <div class="bd-sm" style="color:var(--on-sv)">${ex.detail}</div>
+    </div>
+    ${hasVideo?`<button class="ex-video-btn" onclick="openVideoModal('${ex.name.replace(/'/g,"\\'")}')"><span class="material-icons-round" style="font-size:14px">play_circle</span>How-to</button>`:''}
+  </div>`;
+}
+function renderWorkout(){
+  const data=getData(),week=getWeek(data.startDate),dow=getDow();
+  const wo=getWorkout(week,dow,data.profile),done=!!data.completions[todayStr()];
+  const checks=data.checks[todayStr()]||{};
+  document.getElementById('wo-title').textContent=wo.name;
+  document.getElementById('wo-complete-banner').style.display=done?'block':'none';
+  const chipMap={cardio:'ch-t',strength:'ch-p',rest:'ch-s'};
+  document.getElementById('wo-chip').innerHTML=`<div class="chip ${chipMap[wo.type]||'ch-s'}">${wo.tag||wo.type}</div>`;
+  const main=document.getElementById('wo-main');
+  if(wo.type==='rest'){
+    main.innerHTML=`<div class="card" style="text-align:center;padding:40px"><div style="font-size:64px">${wo.icon}</div><div class="hl-sm" style="margin-top:12px;font-weight:600">Rest & Recover</div><div class="bd-md" style="color:var(--on-sv);margin-top:10px;line-height:1.6">${wo.tip}</div></div>`;
+  } else if(wo.type==='cardio'){
+    const c=wo.cardio;
+    main.innerHTML=`<div class="card-e"><div class="tl-md" style="margin-bottom:6px">${wo.icon} ${wo.name}</div><div class="bd-sm" style="color:var(--on-sv);margin-bottom:18px">${c.vehicle}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"><div style="background:var(--primary-container);border-radius:var(--r-l);padding:18px;text-align:center"><div style="font-size:40px;font-weight:700;color:var(--primary);line-height:1">${c.dur}</div><div class="lbl-sm" style="color:var(--on-sv);margin-top:6px">MINUTES</div></div><div style="background:var(--tertiary-container);border-radius:var(--r-l);padding:18px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--tertiary);line-height:1.2">${c.hrRange}</div><div class="lbl-sm" style="color:var(--on-sv);margin-top:6px">TARGET BPM</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px"><div style="background:var(--sc);border-radius:var(--r-l);padding:14px;text-align:center"><div class="tl-sm" style="color:var(--secondary)">${c.label}</div><div class="lbl-sm" style="color:var(--on-sv);margin-top:4px">INTENSITY</div></div><div style="background:var(--sc);border-radius:var(--r-l);padding:14px;text-align:center"><div class="tl-sm" style="color:var(--secondary)">~${c.cal} kcal</div><div class="lbl-sm" style="color:var(--on-sv);margin-top:4px">EST. CALORIES</div></div></div><div style="background:var(--sc);border-radius:var(--r-l);padding:14px"><div class="lbl-sm" style="color:var(--on-sv);margin-bottom:4px">COACH TIP</div><div class="bd-md">💡 ${c.tip}</div></div></div>`;
+  } else {
+    const items=wo.exercises.map((ex,i)=>exItemHTML(ex,i,'ex',checks)).join('');
+    main.innerHTML<`<div class="card-e"><div class="tl-md" style="margin-bottom:4px">${wo.icon} ${wo.name}</div><div class="bd-sm" style="color:var(--on-sv);margin-bottom:16px">Week ${week} · ${PA�EES[week-1]} Phase</div><div id="ex-list">${items}</div></div>`;
+  }
+  const ac=document.getElementById('wo-ankle');
+  if(wo.ankle&&wo.ankle.length>0){
+    const aItems=wo.ankle.map((ex,i)=>exItemHTML(ex,i,'ankle',checks)).join('');
+    ac.innerHTML<`<div class="ankle-card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="material-icons-round" style="color:var(--warning)">healing</span><div><div class="ankle-ttl">ATFL Ankle Rehab</div><div class="bd-sm" style="color:var(--on-sv)">Weeks 1–6 · Include every workout day</div></div></div><div id="ankle-list">${aItems}</div></div>`;
+  } else ac.innerHTML='';
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER — PROGRESS
+// ══════════════════════════════════════════════════════════
+function renderProgress(){
+  const data=getData(),week=getWeek(data.startDate),pct=~~(((week-1)/12)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-lbl').textContent=`Week ${week} of 12`;
+  document.getElementById('prog-phase').textContent=`${PHASES[week-1]} Phase · ${pct}% complete`;
+  const dow=getDow(),d=new Date(); d.setDate(d.getDate()-dow);
+  let wHTML='';
+  for(let i=0;i<7;i++){
+    const ds=dateStr(d),isDone=!!data.completions[ds],isToday=ds===todayStr();
+    const isFuture=new Date(ds)>new Date(todayStr()),isRest=i===6,isPast=!isDone&&!isToday&&!isFuture&&!isRest;
+    let cls='cal-day'; if(isDone)cls+=' done'; else if(isToday)cls+=' today'; else if(isRest)cls+=' rest'; else if(isFuture)cls+=' future'; else if(isPast)cls+=' missed';
+    wHTML+=`<div class="${cls}">${isDone?'✓':d.getDate()}</div>`; d.setDate(d.getDate()+1);
+  }
+  document.getElementById('week-grid').innerHTML=wHTML;
+  const age=data.profile.age||35,zones=hrZones(age);
+  document.getElementById('hr-lbl').textContent=`Max HR: ${220-age} bpm (Age ${age})`;
+  document.getElementById('hr-zones').innerHTML=zones.map(z=>`<div class="hr-zone" style="background:${z.color}18"><div class="hr-dot" style="background:${z.color}"></div><div style="flex:1"><div class="tl-sm">${z.z} · ${z.name}</div><div class="bd-sm" style="color:var(--on-sv)">${z.pct} of max HR</div></div><div class="lbl-md" style="color:${z.color};font-weight:700">${z.bpm}</div></div>`).join('');
+  const sd=new Date(data.startDate),sdow=(sd.getDay()+6)%7,cs=new Date(sd); cs.setDate(cs.getDate()-sdow);
+  let calHTML='';
+  for(let w=0;w<12;w++){
+    calHTML+=`<div style="margin-bottom:6px"><div class="lbl-sm" style="color:var(--on-sv);margin-bottom:3px">Wk ${w+1}</div><div class="cal-grid">`;
+    for(let day=0;day<7;day++){
+      const ds=dateStr(cs),isDone=!!data.completions[ds],isToday=ds===todayStr(),isFuture=new Date(ds)>new Date(todayStr()),isRest=day===6;
+      let cls='cal-day'; if(isDone)cls+=' done'; else if(isToday)cls+=' today'; else if(isRest)cls+=' rest'; else if(isFuture)cls+=' future';
+      calHTML+=`<div class="${cls}" style="font-size:9px">${isDone?'✓':cs.getDate()}</div>`; cs.setDate(cs.getDate()+1);
+    }
+    calHTML+='</div></div>';
+  }
+  document.getElementById('full-cal').innerHTML=calHTML;
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER — SETTINGS
+// ══════════════════════════════════════════════════════════
+function renderSettings(){
+  const data=getData(), n=data.notifs;
+  document.getElementById('inp-age').value=data.profile.age||35;
+  document.getElementById('inp-weight').value=data.profile.weight||155;
+  document.getElementById('inp-fitbit').value=data.fitbit?.clientId||'';
+  document.getElementById('start-date-lbl').textContent=new Date(data.startDate).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const energyLevels=[{e:'😴',l:'Very Low'},{e:'😑',l:'Low'},{e:'🙂',l:'Normal'},{e:'💪',�:'High'},{e:'🔥',l:'Max'}];
+  const curE=data.profile.energy||3;
+  document.getElementById('energy-row').innerHTML=energyLevels.map((en,i)=>`<button class="energy-btn${i+1===curE?' active':''}" onclick="setEnergy(${i+1})">${en.e}<span>${en.l}</span></button>`).join('');
+  // Notification toggles
+  ['morning','evening'].forEach(t=>{const tog=document.getElementById('toggle-'+t);if(tog)tog.className='toggle-sw'+(n[t].enabled?' on':'');});
+  document.getElementById('inp-morning-h').value=n.morning.h;
+  document.getElementById('inp-morning-m').value=n.morning.m;
+  document.getElementById('inp-evening-h').value=n.evening.h;
+  document.getElementById('inp-evening-m').value=n.evening.m;
+  document.getElementById('sel-snooze').value=n.snoozeMin||10;
+  renderNotifPermCard(typeof Notification!=='undefined'?Notification.permission:'denied');
+  // Dark toggle
+  const dt=document.getElementById('dark-toggle'); if(dt) dt.className='toggle-sw'+(data.darkMode?' on':'');
+  // Fitbit
+  const fitbitMsg=document.getElementById('fitbit-status-msg');
+  fitbitMsg.innerHTML=data.fitbit?.token?`<div style="display:flex;align-items:center;gap:8px;color:var(--success);margin-bottom:12px"><span class="material-icons-round">check_circle</span><span class="tl-sm">Connected to Fitbit</span></div>`:'';
+}
+
+// ══════════════════════════════════════════════════════════
+// INTERACTIONS
+// ══════════════════════════════════════════════════════════
+function toggleCheck(idx,type){
+  const data=getData(), key=(type==='ankle'?'ankle_':'ex_')+idx;
+  if(!data.checks[todayStr()]) data.checks[todayStr()]={};
+  data.checks[todayStr()][key]=!data.checks[todayStr()][key];
+  save(data);
+  const item=document.getElementById(type+'item'+idx);
+  if(item) item.classList.toggle('checked',data.checks[todayStr()][key]);
+}
+function markComplete(){
+  const data=getData(); data.completions[todayStr()]=true; save(data);
+  const fab=document.getElementById('fab'); fab.className='fab done'; fab.disabled=true;
+  document.getElementById('fab-txt').textContent='Completed! ✓';
+  document.getElementById('wo-complete-banner').style.display='block';
+  document.getElementById('wo-complete-banner').scrollIntoView({behavior:'smooth'});
+}
+function setEnergy(level){
+  const data=getData(); data.profile.energy=level; save(data);
+  document.querySelectorAll('.energy-btn').forEach((b,i)=>b.classList.toggle('active',i+1===level));
+}
+function saveProfile(){
+  const data=getData();
+  data.profile.age=parseInt(document.getElementById('inp-age').value)||35;
+  data.profile.weight=parseInt(document.getElementById('inp-weight').value)||155;
+  save(data); scheduleNotifs();
+  const msg=document.getElementById('save-msg'); msg.style.display='block';
+  setTimeout(()=>msg.style.display='none',2500);
+}
+function connectFitbit(){
+  const clientId=document.getElementById('inp-fitbit').value.trim();
+  if(!clientId){alert('Enter your Fitbit Client ID first.\n\nGet one free at dev.fitbit.com → Register an App (Personal)');return;}
+  const data=getData(); data.fitbit.clientId=clientId; save(data);
+  const redirectUri=encodeURIComponent(window.location.href.split('?')[0]);
+  const url=`https://www.fitbit.com/oauth2/authorize?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${encodeURIComponent('activity heartrate sleep profile')}&expires_in=604800`;
+  window.open(url,'_blank');
+  alert('Fitbit auth opened in a new tab.\n\nNote: Requires HTTPS. Serve locally with: python3 -m http.server 8080 then open localhost:8080/fitplan.html');
+}
+function resetProgram(){
+  if(!confirm('Reset program and start fresh from Week 1? All history will be cleared.')) return;
+  const data=getData(); data.startDate=dateStr(new Date()); data.completions={}; data.checks={};
+  save(data); renderSettings(); navigate('today');
+}
+
+// ══════════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════════
+(function boot(){
+  const data = getData();
+  applyDark(data.darkMode);
+  initSW().then(() => {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') scheduleNotifs();
+  });
+  renderToday();
+})();
+</script>
+</body>
+</html>
